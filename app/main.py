@@ -46,6 +46,20 @@ async def create_student(student: Student):
         print(f"POST Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.put("/students/{student_id}", response_model=Student)
+async def update_student(student_id: int, student_data: Student):
+    """
+    Update an existing student.
+    Validates data (400), checks existence (404), and email uniqueness (409).
+    """
+    try:
+        return StudentService.update_student(student_id, student_data)
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        print(f"PUT Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 @app.post("/reset")
 async def perform_reset():
     """

@@ -42,3 +42,25 @@ class StudentService:
         # 3. Save and Return
         students_db.append(student_data)
         return student_data
+
+    @staticmethod
+    def update_student(student_id: int, updated_data: Student) -> Student:
+        # 1. Find the student (404 if not found)
+        target_student = StudentService.get_student_by_id(student_id)
+
+        # 2. Unique Email Check (409 Conflict)
+        for s in students_db:
+            if s.email == updated_data.email and s.id != student_id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Cet email est déjà utilisé par un autre étudiant."
+                )
+
+        # 3. Update the fields
+        target_student.firstName = updated_data.firstName
+        target_student.lastName = updated_data.lastName
+        target_student.email = updated_data.email
+        target_student.grade = updated_data.grade
+        target_student.field = updated_data.field
+
+        return target_student
