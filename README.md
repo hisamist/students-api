@@ -62,18 +62,9 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 
 ## API Endpoints
 
-| Method | Endpoint              | Description                          |
-|--------|-----------------------|--------------------------------------|
-| GET    | `/students`           | List all students (paginated, sorted)|
-| GET    | `/students/{id}`      | Get a student by ID                  |
-| POST   | `/students`           | Create a new student                 |
-| PUT    | `/students/{id}`      | Update an existing student           |
-| DELETE | `/students/{id}`      | Delete a student                     |
-| GET    | `/students/stats`     | Get statistics (total, avg grade...) |
-| GET    | `/students/search?q=` | Search students by name              |
-| POST   | `/reset`              | Reset data to initial state          |
+### `GET /students`
 
-### Query Parameters for `GET /students`
+Returns a paginated and sorted list of students.
 
 | Parameter | Default | Description                          |
 |-----------|---------|--------------------------------------|
@@ -82,7 +73,30 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 | `sort`    | `grade` | Field to sort by (`grade` or `name`) |
 | `order`   | `desc`  | Sort direction (`asc` or `desc`)     |
 
-### Student Schema
+| Status | Meaning                        |
+|--------|--------------------------------|
+| `200`  | List of students               |
+| `400`  | Invalid query parameter        |
+
+---
+
+### `GET /students/{id}`
+
+Returns a single student by ID.
+
+| Status | Meaning                        |
+|--------|--------------------------------|
+| `200`  | Student found                  |
+| `400`  | ID is not a valid integer      |
+| `404`  | Student not found              |
+
+---
+
+### `POST /students`
+
+Creates a new student.
+
+**Request body:**
 
 ```json
 {
@@ -94,8 +108,93 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 }
 ```
 
-**Allowed fields:** `informatique`, `mathématiques`, `physique`, `chimie`
-**Grade:** float between `0` and `20`
+| Status | Meaning                              |
+|--------|--------------------------------------|
+| `201`  | Student created                      |
+| `400`  | Validation error (missing/invalid field) |
+| `409`  | Email already exists                 |
+
+---
+
+### `PUT /students/{id}`
+
+Updates an existing student (full replacement).
+
+| Status | Meaning                              |
+|--------|--------------------------------------|
+| `200`  | Student updated                      |
+| `400`  | Validation error                     |
+| `404`  | Student not found                    |
+| `409`  | Email already used by another student|
+
+---
+
+### `DELETE /students/{id}`
+
+Deletes a student by ID.
+
+| Status | Meaning           |
+|--------|-------------------|
+| `200`  | Student deleted   |
+| `404`  | Student not found |
+
+---
+
+### `GET /students/stats`
+
+Returns global statistics.
+
+**Response:**
+
+```json
+{
+  "totalStudents": 5,
+  "averageGrade": 14.2,
+  "bestStudent": { "firstName": "Alice", ... },
+  "studentsByField": {
+    "informatique": 2,
+    "mathématiques": 1
+  }
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| `200`  | Stats   |
+
+---
+
+### `GET /students/search?q=`
+
+Searches students by first name or last name.
+
+| Status | Meaning                     |
+|--------|-----------------------------|
+| `200`  | List of matching students   |
+| `400`  | Missing or empty `q` param  |
+
+---
+
+### `POST /reset`
+
+Resets all data to the initial state.
+
+| Status | Meaning        |
+|--------|----------------|
+| `200`  | Data reset     |
+
+---
+
+### Student Schema
+
+| Field       | Type    | Constraints                                              |
+|-------------|---------|----------------------------------------------------------|
+| `id`        | integer | Auto-assigned, optional on creation                     |
+| `firstName` | string  | Min 2 characters                                        |
+| `lastName`  | string  | Min 2 characters                                        |
+| `email`     | string  | Valid email format, unique                              |
+| `grade`     | float   | Between `0` and `20`                                    |
+| `field`     | string  | `informatique`, `mathématiques`, `physique`, `chimie`   |
 
 ## Running Tests
 
