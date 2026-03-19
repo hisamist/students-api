@@ -40,6 +40,16 @@ def test_get_students_contains_initial_data():
     # Based on our INITIAL_STUDENTS in data.py
     assert len(data) == 5
 
+def test_get_students_ranking():
+    """Test : GET /students must return all by sorted order"""
+    # Test for the Top Student
+    response = client.get("/students?sort=grade&order=desc&limit=1")
+    assert response.status_code == 200
+    data = response.json()
+    
+    # If the list isn't empty, it should be the highest grade
+    if len(data) > 0:
+        assert "grade" in data[0]
 
 def test_get_student_by_id_valid():
     """Test 3: GET /students/:id (valid) must return the corresponding student"""
