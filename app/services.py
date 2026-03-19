@@ -116,3 +116,16 @@ class StudentService:
             "studentsByField": students_by_field,
             "bestStudent": best_student
         }
+        
+    @staticmethod
+    def search_students(query: str) -> list[Student]:
+        """
+        Search for students where firstName or lastName contains the query string.
+        Case-insensitive.
+        """
+        query = query.lower()
+        results = [
+            s for s in students_db 
+            if query in s.firstName.lower() or query in s.lastName.lower()
+        ]
+        return results

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Query
 from app.data import students_db, reset_db  
 from app.models import Student
 from app.services import StudentService
@@ -15,7 +15,25 @@ async def get_student_stats():
     except Exception as e:
         print(f"STATS error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-        
+
+@app.get("/students/search", response_model=list[Student])
+async def search_students(q: str = Query(None)):
+    """
+    Search students by name or first name.
+    - 400: If 'q' is missing or empty.
+    """
+    if not q or q.strip() == "":
+        raise HTTPException(
+            status_code=400, 
+            detail="The search parameter 'q' is required and cannot be empty."
+        )
+    
+    try:
+        return StudentService.search_students(q)
+    except Exception as e:
+        print(f"SEARCH error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 @app.get("/students", response_model=list[Student])
 async def get_students():
     """
