@@ -52,17 +52,27 @@ async def search_students(q: str = Query(None)):
 
 
 @app.get("/students", response_model=list[Student])
-async def get_students():
+async def get_students(
+    page: int = Query(1, ge=1, description="Page number (starting from 1)"),
+    limit: int = Query(10, ge=1, le=100, description="Number of students per page")
+):
     """
-    Endpoint to get the list of all students.
+    Endpoint to get the list of students with pagination.
     """
     try:
-        return StudentService.get_all_students()
+        # Calculate start and end indices for the slice
+        start = (page - 1) * limit
+        end = start + limit
+        
+        all_students = StudentService.get_all_students()
+        
+        # Return only the requested slice
+        return all_students[start:end]
+        
     except Exception:
         raise HTTPException(
             status_code=500, detail="An error occurred while fetching students"
         ) from None
-
 
 @app.get("/students/{student_id}", response_model=Student)
 async def get_student(student_id: int):
