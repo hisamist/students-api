@@ -12,6 +12,26 @@ def test_get_all_students_type():
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
+def test_get_students_default_pagination():
+    """Test : GET /students returns 200 and a list without pagenation(default)"""
+    response = client.get("/students")
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) <= 10
+
+def test_get_students_with_limit():
+    """Test : GET /students returns 200 and a list with pagenation (page valid)"""
+    # We force a limit of 2
+    response = client.get("/students?limit=2")
+    assert response.status_code == 200
+    # If you have at least 2 students, it must return exactly 2
+    assert len(response.json()) == 2
+
+def test_get_students_invalid_page():
+    """Test : GET /students returns 200 and a list with pagenation (page non-existent)"""
+    # Page 0 is forbidden by ge=1
+    response = client.get("/students?page=0")
+    assert response.status_code == 400
 
 def test_get_students_contains_initial_data():
     """Test 2: GET /students must return all initial students(5 total)"""
