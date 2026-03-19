@@ -54,7 +54,25 @@ jobs:
       - name: Verification of code (Lint)
         run: python -m ruff check .
 
-      # Step 5: Unit Tests
-      # Runs Pytest to ensure all API endpoints work as expected.
-      - name: Run Unit Tests
-        run: python -m pytest
+      # Step 5: Unit Tests with Coverage
+      # Generates a report and fails if tests fail.
+      - name: Run Unit Tests with Coverage
+        run: |
+          python -m pytest --cov=app --cov-report=xml --cov-report=term-missing
+
+      # Step 6: Generate Coverage Summary
+      # This creates a nice table in the GitHub Actions "Summary" tab.
+      - name: Generate Coverage Summary
+        run: |
+          echo "### 📊 Code Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          python -m pytest --cov=app --cov-report=term-missing >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      # Step 7: Upload Coverage Artifact (Optional)
+      # Keeps the XML report as a downloadable file for 90 days.
+      - name: Upload Coverage Report
+        uses: actions/checkout@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
