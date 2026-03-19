@@ -1,0 +1,60 @@
+# ========================================
+# WORKFLOW NAME
+# ========================================
+# This name appears in the "Actions" tab of your GitHub repository.
+name: Students API CI
+
+# ========================================
+# TRIGGERS (WHEN the workflow runs)
+# ========================================
+on:
+  # Triggered on every push to the main branch
+  push:
+    branches: [ "main" ]
+  # Triggered on every Pull Request targeting the main branch
+  pull_request:
+    branches: [ "main" ]
+
+# ========================================
+# JOBS (The tasks to execute)
+# ========================================
+jobs:
+  # --- JOB 1: BUILD, LINT, AND TEST ---
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest # The Virtual Machine (Runner)
+
+    # Matrix strategy to test on multiple Python versions
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      # Step 1: Checkout the source code
+      # This pulls your code from the repo into the Runner.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Python environment
+      # Uses the version defined in the matrix above.
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Step 3: Install dependencies
+      # Upgrades pip and installs packages from requirements.txt.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Step 4: Linting (Quality Check)
+      # Runs Ruff to ensure the code is clean and follows the rules.
+      - name: Verification of code (Lint)
+        run: python -m ruff check .
+
+      # Step 5: Unit Tests
+      # Runs Pytest to ensure all API endpoints work as expected.
+      - name: Run Unit Tests
+        run: python -m pytest
