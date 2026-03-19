@@ -36,3 +36,52 @@ def test_get_student_by_id_invalide():
     response = client.get("/students/ab")
     # Our custom exception handler converts the 422(default for FastAPI) to 400
     assert response.status_code == 400
+
+# --- CREATION TESTS (4 tests) ---
+def test_create_student_success():
+    """Test 6: POST with valid data must return 201 + student with an ID """
+    payload = {
+            "firstName": "Test",
+            "lastName": "TestName",
+            "email": "test@test.com",
+            "grade": 15.5,
+            "field": "informatique"
+        }
+    response = client.post("/students", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert "id" in data
+    assert data["email"] == "test@test.com"
+
+def test_create_student_missing_field():
+    """Test 7: POST missing mandatory field must return 400 """
+    payload = {
+            "firstName": "Test2",
+            "grade": 15.5,
+        }
+    response = client.post("/students", json=payload)
+    assert response.status_code == 400
+
+def test_create_student_invalid_grade():
+    """Test 8: POST with invalide grade must return 400 """
+    payload = {
+        "firstName": "Alice",
+        "lastName": "Beta",
+        "email": "alice.beta@edu.com",
+        "grade": 25.0,  # Invalid: grade must be <= 20
+        "field": "mathématiques"
+    }
+    response = client.post("/students", json=payload)
+    assert response.status_code == 400
+
+def test_create_student_duplicate_email():
+    """Test 9: POST with existing email must return 409 """
+    payload = {
+        "firstName": "Alice",
+        "lastName": "Beta",
+        "email": "alice@edu.com",
+        "grade": 10.0,  
+        "field": "mathématiques"
+    }
+    response = client.post("/students", json=payload)
+    assert response.status_code == 409
