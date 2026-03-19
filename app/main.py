@@ -1,22 +1,24 @@
-from fastapi import FastAPI, Request, status,HTTPException,Query
+from fastapi import FastAPI, Request, status, HTTPException, Query
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from app.data import students_db, reset_db  
+from app.data import reset_db
 from app.models import Student
 from app.services import StudentService
 
 app = FastAPI(title="Students API")
 
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST, # modify 422(defaut for FastAPI)->400
+        status_code=status.HTTP_400_BAD_REQUEST,  # modify 422(defaut for FastAPI)->400
         content={
             "detail": "Bad Request",
             "message": "Validation failed",
-            "errors": exc.errors() # detail error content
+            "errors": exc.errors(),  # detail error content
         },
     )
+
 
 @app.get("/students/stats")
 async def get_student_stats():
@@ -27,7 +29,8 @@ async def get_student_stats():
         return StudentService.get_stats()
     except Exception as e:
         print(f"STATS error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
+
 
 @app.get("/students/search", response_model=list[Student])
 async def search_students(q: str = Query(None)):
@@ -37,15 +40,16 @@ async def search_students(q: str = Query(None)):
     """
     if not q or q.strip() == "":
         raise HTTPException(
-            status_code=400, 
-            detail="The search parameter 'q' is required and cannot be empty."
+            status_code=400,
+            detail="The search parameter 'q' is required and cannot be empty.",
         )
-    
+
     try:
         return StudentService.search_students(q)
     except Exception as e:
         print(f"SEARCH error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
+
 
 @app.get("/students", response_model=list[Student])
 async def get_students():
@@ -56,12 +60,12 @@ async def get_students():
         return StudentService.get_all_students()
     except Exception:
         raise HTTPException(
-            status_code=500, 
-            detail="An error occurred while fetching students"
-        )
+            status_code=500, detail="An error occurred while fetching students"
+        ) from None
+
 
 @app.get("/students/{student_id}", response_model=Student)
-async def get_student(student_id: int): 
+async def get_student(student_id: int):
     """
     Retrieve a student by their ID.
     - 200: Success
@@ -73,7 +77,8 @@ async def get_student(student_id: int):
     except HTTPException as http_exc:
         raise http_exc
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
+
 
 @app.post("/students", response_model=Student, status_code=201)
 async def create_student(student: Student):
@@ -86,7 +91,8 @@ async def create_student(student: Student):
         raise http_exc
     except Exception as e:
         print(f"POST Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
+
 
 @app.put("/students/{student_id}", response_model=Student)
 async def update_student(student_id: int, student_data: Student):
@@ -100,7 +106,8 @@ async def update_student(student_id: int, student_data: Student):
         raise http_exc
     except Exception as e:
         print(f"PUT Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
+
 
 @app.delete("/students/{student_id}")
 async def delete_student(student_id: int):
@@ -115,7 +122,7 @@ async def delete_student(student_id: int):
         raise http_exc
     except Exception as e:
         print(f"DELETE error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
 
 
 @app.post("/reset")

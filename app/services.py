@@ -1,6 +1,8 @@
 from app.models import Student
 from app.data import students_db
 from fastapi import HTTPException, status
+
+
 class StudentService:
     @staticmethod
     def get_all_students() -> list[Student]:
@@ -18,12 +20,12 @@ class StudentService:
         for student in students_db:
             if student.id == student_id:
                 return student
-        
+
         # If no student matches the ID, raise a clean 404 error
         raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Student with ID {student_id} not found"
-            )
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Student with ID {student_id} not found",
+        )
 
     @staticmethod
     def create_student(student_data: Student) -> Student:
@@ -32,7 +34,7 @@ class StudentService:
             if s.email == student_data.email:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail="Email already registered"
+                    detail="Email already registered",
                 )
 
         # 2. Auto-generate ID (max ID + 1)
@@ -53,7 +55,7 @@ class StudentService:
             if s.email == updated_data.email and s.id != student_id:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail="Cet email est déjà utilisé par un autre étudiant."
+                    detail="Cet email est déjà utilisé par un autre étudiant.",
                 )
 
         # 3. Update the fields
@@ -79,7 +81,7 @@ class StudentService:
         students_db.remove(target_student)
 
         # 3. Return a confirmation message
-        return {"message": f"Student with ID {student_id} has been deleted successfully."}
+        return {"message": f"Student with ID {student_id} ,deleted successfully."}
 
     @staticmethod
     def get_stats() -> dict:
@@ -92,18 +94,18 @@ class StudentService:
                 "totalStudents": 0,
                 "averageGrade": 0,
                 "studentsByField": {},
-                "bestStudent": 0
+                "bestStudent": 0,
             }
 
         total_students = len(students_db)
-        
+
         # 1. Average Grade (rounded to 2 decimals)
         all_grades = [s.grade for s in students_db]
         average_grade = round(sum(all_grades) / total_students, 2)
-        
+
         # 2. Best Grade
         best_student = max(all_grades)
-        
+
         # 3. Students by Field
         students_by_field = {}
         for s in students_db:
@@ -114,9 +116,9 @@ class StudentService:
             "totalStudents": total_students,
             "averageGrade": average_grade,
             "studentsByField": students_by_field,
-            "bestStudent": best_student
+            "bestStudent": best_student,
         }
-        
+
     @staticmethod
     def search_students(query: str) -> list[Student]:
         """
@@ -125,7 +127,8 @@ class StudentService:
         """
         query = query.lower()
         results = [
-            s for s in students_db 
+            s
+            for s in students_db
             if query in s.firstName.lower() or query in s.lastName.lower()
         ]
         return results
