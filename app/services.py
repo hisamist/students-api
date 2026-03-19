@@ -80,3 +80,39 @@ class StudentService:
 
         # 3. Return a confirmation message
         return {"message": f"Student with ID {student_id} has been deleted successfully."}
+
+    @staticmethod
+    def get_stats() -> dict:
+        """
+        Calculate statistics for all students.
+        Returns: total, average, count by field, and best grade.
+        """
+        if not students_db:
+            return {
+                "totalStudents": 0,
+                "averageGrade": 0,
+                "studentsByField": {},
+                "bestStudent": 0
+            }
+
+        total_students = len(students_db)
+        
+        # 1. Average Grade (rounded to 2 decimals)
+        all_grades = [s.grade for s in students_db]
+        average_grade = round(sum(all_grades) / total_students, 2)
+        
+        # 2. Best Grade
+        best_student = max(all_grades)
+        
+        # 3. Students by Field
+        students_by_field = {}
+        for s in students_db:
+            field = s.field
+            students_by_field[field] = students_by_field.get(field, 0) + 1
+
+        return {
+            "totalStudents": total_students,
+            "averageGrade": average_grade,
+            "studentsByField": students_by_field,
+            "bestStudent": best_student
+        }

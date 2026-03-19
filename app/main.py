@@ -5,6 +5,17 @@ from app.services import StudentService
 
 app = FastAPI(title="Students API")
 
+@app.get("/students/stats")
+async def get_student_stats():
+    """
+    Get global statistics about students.
+    """
+    try:
+        return StudentService.get_stats()
+    except Exception as e:
+        print(f"STATS error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+        
 @app.get("/students", response_model=list[Student])
 async def get_students():
     """
@@ -74,6 +85,7 @@ async def delete_student(student_id: int):
     except Exception as e:
         print(f"DELETE error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @app.post("/reset")
 async def perform_reset():
