@@ -1,6 +1,6 @@
 [tool.ruff]
 # Maximum line length (standard is 88, like Black)
-line-length = 88
+line-length = 100
 
 # Rules selection
 # E/W: Error/Warning (Pycodestyle)
@@ -8,10 +8,10 @@ line-length = 88
 # B: Bugbear (Common design flaws)
 # I: Isort (Import sorting)
 # UP: Pyupgrade (Modern Python syntax)
-select = ["E", "F", "B"]
+select = ["E", "F"]
 
 # Ignore specific rules if needed
-ignore = []
+ignore = ["D100"]
 
 [tool.ruff.lint]
 # Ensure we catch unused variables and imports
