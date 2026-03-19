@@ -4,9 +4,9 @@ from fastapi.responses import JSONResponse
 from app.data import reset_db
 from app.models import Student
 from app.services import StudentService
+from typing import Literal
 
 app = FastAPI(title="Students API")
-
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -53,26 +53,43 @@ async def search_students(q: str = Query(None)):
 
 @app.get("/students", response_model=list[Student])
 async def get_students(
-    page: int = Query(1, ge=1, description="Page number (starting from 1)"),
-    limit: int = Query(10, ge=1, le=100, description="Number of students per page")
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    sort: str = Query("grade", description="Field to sort by: 'grade' or 'name'"),
+    order: Literal["asc", "desc"] = "desc" # Default to 'desc' for grades
 ):
     """
-    Endpoint to get the list of students with pagination.
+    Get students with Pagination and Sorting.
+    Example: /students?sort=grade&order=desc
     """
     try:
-        # Calculate start and end indices for the slice
+        # 1. Fetch all data
+        all_students = StudentService.get_all_students()
+
+        # 2. Sorting Logic (Must happen before slicing)
+        try:
+            all_students = sorted(
+                all_students,
+                key=lambda x: getattr(x, sort), 
+                reverse=(order == "desc")
+            )
+        except AttributeError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid sort field: {sort}. Use 'name' or 'grade'."
+            )
+
+        # 3. Pagination Logic (Slicing)
         start = (page - 1) * limit
         end = start + limit
         
-        all_students = StudentService.get_all_students()
-        
-        # Return only the requested slice
         return all_students[start:end]
-        
-    except Exception:
-        raise HTTPException(
-            status_code=500, detail="An error occurred while fetching students"
-        ) from None
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from None
 
 @app.get("/students/{student_id}", response_model=Student)
 async def get_student(student_id: int):
