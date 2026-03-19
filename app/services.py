@@ -64,3 +64,19 @@ class StudentService:
         target_student.field = updated_data.field
 
         return target_student
+
+    @staticmethod
+    def delete_student(student_id: int) -> dict:
+        """
+        Delete a student by ID.
+        - Raises 404 if not found.
+        - Returns a confirmation message if successful.
+        """
+        # 1. Find the student (reuse GET logic for 404 check)
+        target_student = StudentService.get_student_by_id(student_id)
+
+        # 2. Remove from the list
+        students_db.remove(target_student)
+
+        # 3. Return a confirmation message
+        return {"message": f"Student with ID {student_id} has been deleted successfully."}

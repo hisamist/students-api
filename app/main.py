@@ -60,6 +60,21 @@ async def update_student(student_id: int, student_data: Student):
         print(f"PUT Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.delete("/students/{student_id}")
+async def delete_student(student_id: int):
+    """
+    Deletes a student record.
+    - 200: Success message
+    - 404: Not Found
+    """
+    try:
+        return StudentService.delete_student(student_id)
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        print(f"DELETE error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 @app.post("/reset")
 async def perform_reset():
     """
