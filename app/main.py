@@ -107,7 +107,7 @@ async def get_student(student_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error") from None
 
 
-@app.post("/students", response_model=Student, status_code=200)
+@app.post("/students", response_model=Student, status_code=201)
 async def create_student(student: Student):
     """
     Create a new student with full validation.
