@@ -71,7 +71,6 @@ def test_get_student_by_id_invalide():
     # Our custom exception handler converts the 422(default for FastAPI) to 400
     assert response.status_code == 400
 
-
 # --- CREATION TESTS (4 tests) ---
 def test_create_student_success():
     """Test 6: POST with valid data must return 201 + student with an ID"""
@@ -200,3 +199,15 @@ def test_search_students():
     assert isinstance(data, list)
     assert len(data) >= 1
     assert data[0]["firstName"] == "Eve"
+
+def test_search_students_without_param():
+    """Test : GET /students/search?q=... if param is null must return 400""" 
+    # Searching for '' 
+    response = client.get("/students/search?q=")
+    assert response.status_code == 400
+
+def test_search_students_not_found():
+    """Test: Searching for a non-existent name returns an empty list"""  
+    response = client.get("/students/search?q=abcdefg")
+    assert response.status_code == 200
+    assert response.json() == []  # Should be an empty list, not an error
