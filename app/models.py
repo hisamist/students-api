@@ -1,8 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Literal
+from typing import Literal, Optional
 
 class Student(BaseModel):
-    id: int  
+    id: Optional[int] = None
     firstName: str = Field(..., min_length=2)
     lastName: str = Field(..., min_length=2)
     email: EmailStr
