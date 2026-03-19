@@ -103,6 +103,33 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 python -m pytest
 ```
 
+## Code Coverage
+
+Run tests with coverage report:
+
+```bash
+# Terminal report
+python -m pytest --cov=app --cov-report=term-missing
+
+# HTML report (opens in browser)
+python -m pytest --cov=app --cov-report=html
+open htmlcov/index.html
+```
+
+Example output:
+
+```
+----------- coverage: app -----------
+Name                Stmts   Miss  Cover
+---------------------------------------
+app/main.py            52      3    94%
+app/services.py        38      2    95%
+app/models.py           6      0   100%
+app/data.py             8      0   100%
+---------------------------------------
+TOTAL                 104      5    95%
+```
+
 ## Linting
 
 ```bash
