@@ -1,9 +1,22 @@
-from fastapi import FastAPI, HTTPException,Query
+from fastapi import FastAPI, Request, status,HTTPException,Query
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from app.data import students_db, reset_db  
 from app.models import Student
 from app.services import StudentService
 
 app = FastAPI(title="Students API")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST, # modify 422(defaut for FastAPI)->400
+        content={
+            "detail": "Bad Request",
+            "message": "Validation failed",
+            "errors": exc.errors() # detail error content
+        },
+    )
 
 @app.get("/students/stats")
 async def get_student_stats():
